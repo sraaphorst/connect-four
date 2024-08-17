@@ -1,3 +1,5 @@
+// By Sebastian Raaphorst, 2024.
+
 package org.vorpal.connect
 
 import javafx.application.Application
@@ -9,7 +11,7 @@ import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.vorpal.connect.controller.SetupPanel
 
-class MainKt : Application() {
+class Main : Application() {
 
     private lateinit var mainContainer: StackPane
 
@@ -26,7 +28,7 @@ class MainKt : Application() {
         val setupPanel = SetupPanel(humanPlayer1, humanPlayer2, regularGame, rowsValue, columnsValue, linesValue, this)
 
         // Main container to hold the panel
-        val mainContainer = StackPane(setupPanel)
+        mainContainer = StackPane(setupPanel)
         mainContainer.padding = Insets(20.0)
 
         // Set up the stage
@@ -34,6 +36,7 @@ class MainKt : Application() {
         primaryStage.scene = Scene(mainContainer, 400.0, 400.0)
         primaryStage.show()
     }
+
 
     fun play(humanPlayer1: SimpleBooleanProperty,
              humanPlayer2: SimpleBooleanProperty,
@@ -54,5 +57,5 @@ class MainKt : Application() {
 }
 
 fun main() {
-    Application.launch(MainKt::class.java)
+    Application.launch(Main::class.java)
 }

@@ -1,3 +1,5 @@
+// By Sebastian Raaphorst, 2024.
+
 package org.vorpal.connect.controller
 
 import javafx.beans.property.SimpleBooleanProperty
@@ -9,7 +11,7 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import org.vorpal.connect.MainKt
+import org.vorpal.connect.Main
 
 class SetupPanel(
     private val humanPlayer1: SimpleBooleanProperty,
@@ -18,17 +20,18 @@ class SetupPanel(
     private val rowsValue: SimpleIntegerProperty,
     private val columnsValue: SimpleIntegerProperty,
     private val linesValue: SimpleIntegerProperty,
-    private val mainApp: MainKt
+    private val mainApp: Main
 ) : GridPane() {
 
     init {
         prefWidth = 400.0
         minWidth = 400.0
         maxWidth = 400.0
-        prefHeight = 375.0
-        minHeight = 375.0
-        hgap = 10.0
-        vgap = 10.0
+        prefHeight = 400.0
+        minHeight = 400.0
+        maxHeight = 400.0
+        hgap = 20.0
+        vgap = 20.0
         padding = Insets(20.0)
 
         // Adjust Column Constraints
@@ -41,44 +44,44 @@ class SetupPanel(
         // Player 1 Toggle
         val player1Label = Label("Player 1:")
         val player1ToggleGroup = ToggleGroup()
-        val player1HumanToggle = ToggleButton("Human")
-        val player1ComputerToggle = ToggleButton("Computer")
-        player1HumanToggle.toggleGroup = player1ToggleGroup
-        player1ComputerToggle.toggleGroup = player1ToggleGroup
-        player1HumanToggle.isSelected = true
-        val player1ToggleBox = HBox(10.0, player1HumanToggle, player1ComputerToggle)
+        val player1HumanRadio = RadioButton("Human")
+        val player1ComputerRadio = RadioButton("Computer")
+        player1HumanRadio.toggleGroup = player1ToggleGroup
+        player1ComputerRadio.toggleGroup = player1ToggleGroup
+        player1HumanRadio.isSelected = true
+        val player1ToggleBox = HBox(10.0, player1HumanRadio, player1ComputerRadio)
         player1ToggleBox.alignment = Pos.TOP_LEFT
         add(player1Label, 0, 0)
         add(player1ToggleBox, 1, 0, 2, 1)
-        humanPlayer1.bind(player1HumanToggle.selectedProperty())
+        humanPlayer1.bind(player1HumanRadio.selectedProperty())
 
         // Player 2 Toggle
         val player2Label = Label("Player 2:")
         val player2ToggleGroup = ToggleGroup()
-        val player2HumanToggle = ToggleButton("Human")
-        player2HumanToggle.toggleGroup = player2ToggleGroup
-        val player2ComputerToggle = ToggleButton("Computer")
-        player2ComputerToggle.toggleGroup = player2ToggleGroup
-        player2ComputerToggle.isSelected = true
-        val player2ToggleBox = HBox(10.0, player2HumanToggle, player2ComputerToggle)
+        val player2HumanRadio = RadioButton("Human")
+        player2HumanRadio.toggleGroup = player2ToggleGroup
+        val player2ComputerRadio = RadioButton("Computer")
+        player2ComputerRadio.toggleGroup = player2ToggleGroup
+        player2ComputerRadio.isSelected = true
+        val player2ToggleBox = HBox(10.0, player2HumanRadio, player2ComputerRadio)
         player2ToggleBox.alignment = Pos.TOP_LEFT
         add(player2Label, 0, 1)
         add(player2ToggleBox, 1, 1, 2, 1)
-        humanPlayer2.bind(player2ToggleGroup.selectedToggleProperty().isEqualTo(player2ComputerToggle))
+        humanPlayer2.bind(player2HumanRadio.selectedProperty())
 
         // Gameplay Toggle
         val gameplayLabel = Label("Gameplay:")
         val gameplayToggleGroup = ToggleGroup()
-        val gameplayRegularToggle = ToggleButton("Regular")
-        gameplayRegularToggle.toggleGroup = gameplayToggleGroup
-        val gameplayMisereToggle = ToggleButton("Misere")
-        gameplayMisereToggle.toggleGroup = gameplayToggleGroup
-        gameplayRegularToggle.isSelected = true
-        val gameplayToggleBox = HBox(10.0, gameplayRegularToggle, gameplayMisereToggle)
+        val gameplayRegularRadio = RadioButton("Regular")
+        gameplayRegularRadio.toggleGroup = gameplayToggleGroup
+        val gameplayMisereRadio = RadioButton("Misere")
+        gameplayMisereRadio.toggleGroup = gameplayToggleGroup
+        gameplayRegularRadio.isSelected = true
+        val gameplayToggleBox = HBox(10.0, gameplayRegularRadio, gameplayMisereRadio)
         gameplayToggleBox.alignment = Pos.TOP_LEFT
         add(gameplayLabel, 0, 2)
         add(gameplayToggleBox, 1, 2, 2, 1)
-        regularGame.bind(gameplayToggleGroup.selectedToggleProperty().isEqualTo(gameplayRegularToggle))
+        regularGame.bind(gameplayRegularRadio.selectedProperty())
 
         // Rows Slider
         val rowsLabel = Label("Rows:")

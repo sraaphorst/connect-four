@@ -1,3 +1,5 @@
+// By Sebastian Raaphorst, 2024.
+
 package org.vorpal.connect.general
 
 // Transpose an n x m matrix into an m x n matrix.
