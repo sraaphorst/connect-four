@@ -5,10 +5,7 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.ToggleButton
-import javafx.scene.control.ToggleGroup
+import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -56,6 +53,11 @@ class MainKt : Application() {
         rowsSlider.isShowTickLabels = true
         val rowsValue = SimpleIntegerProperty(ROWS_DEFAULT)
         rowsValue.bind(rowsSlider.valueProperty().asObject().map(Double::toInt))
+        val rowsTextField = TextField()
+        rowsTextField.textProperty().bind(rowsValue.asString())
+        rowsTextField.isEditable = false
+        rowsTextField.prefColumnCount = 2
+
 
         // Columns Slider
         val columnsLabel = Label("Columns:")
@@ -67,6 +69,10 @@ class MainKt : Application() {
         columnsSlider.isShowTickLabels = true
         val columnsValue = SimpleIntegerProperty(COLS_DEFAULT)
         columnsValue.bind(columnsSlider.valueProperty().asObject().map(Double::toInt))
+        val columnsTextField = TextField()
+        columnsTextField.textProperty().bind(columnsValue.asString())
+        columnsTextField.isEditable = false
+        columnsTextField.prefColumnCount = 2
 
         // Line Slider
         val lineLabel = Label("Line Length:")
@@ -76,8 +82,15 @@ class MainKt : Application() {
         lineSlider.isSnapToTicks = true
         lineSlider.isShowTickMarks = true
         lineSlider.isShowTickLabels = true
+        val linesValue = SimpleIntegerProperty(LINE_LENGTH_MIN)
+        linesValue.bind(lineSlider.valueProperty().asObject().map(Double::toInt))
+        val linesTextField = TextField()
+        linesTextField.textProperty().bind(linesValue.asString())
+        linesTextField.isEditable = false
+        linesTextField.prefColumnCount = 2
 
-        // Update lineSlider based on rowsSlider and columnsSlider values
+        // Update lineSlider based on rowsSlider and columnsSlider values.
+        // We can't have a line if the line length is greater than the maximum of the two.
         rowsSlider.valueProperty().addListener { _, _, newValue ->
             lineSlider.max = newValue.toDouble().coerceAtLeast(columnsSlider.value)
         }
@@ -98,10 +111,13 @@ class MainKt : Application() {
             add(gameplayToggleBox, 1, 2)
             add(rowsLabel, 0, 3)
             add(rowsSlider, 1, 3)
+            add(rowsTextField, 2, 3)
             add(columnsLabel, 0, 4)
             add(columnsSlider, 1, 4)
+            add(columnsTextField, 2, 4)
             add(lineLabel, 0, 5)
             add(lineSlider, 1, 5)
+            add(linesTextField, 2, 5)
         }
 
         // Main container
@@ -112,7 +128,8 @@ class MainKt : Application() {
 
         // Set up the stage
         primaryStage.title = "Connect Four Setup"
-        primaryStage.scene = Scene(root, 400.0, 400.0)
+        primaryStage.scene = Scene(root, 350.0, 400.0)
+        primaryStage.isResizable = false
         primaryStage.show()
     }
 
