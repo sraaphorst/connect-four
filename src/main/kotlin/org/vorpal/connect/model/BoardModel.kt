@@ -1,6 +1,6 @@
 package org.vorpal.connect.model
 
-import org.vorpal.connect.general.transpose
+import org.vorpal.connect.general.*
 
 
 enum class Player {
@@ -71,7 +71,7 @@ data class BoardModel(val turn: Player,
 
     // If there is a Line in the board, return it: else, null.
     fun findLine(): Line? =
-        listOf(Companion::findRow, Companion::findColumn, ::findDiagonal)
+        listOf(::findRow, ::findColumn, ::findDiagonal)
             .firstNotNullOfOrNull { it(board, lineLength) }
 
     companion object {
