@@ -14,45 +14,61 @@ import org.vorpal.connect.controller.SetupPanel
 class Main : Application() {
 
     private lateinit var mainContainer: StackPane
+    private lateinit var primaryStage: Stage
+
+    // State properties for the application
+    private val humanPlayer1 = SimpleBooleanProperty(true)
+    private val humanPlayer2 = SimpleBooleanProperty(false)
+    private val regularGame = SimpleBooleanProperty(true)
+    private val rowsValue = SimpleIntegerProperty(SetupPanel.ROWS_DEFAULT)
+    private val columnsValue = SimpleIntegerProperty(SetupPanel.COLS_DEFAULT)
+    private val linesValue = SimpleIntegerProperty(SetupPanel.LINE_LENGTH_DEFAULT)
 
     override fun start(primaryStage: Stage) {
-        // Initialize properties for the values.
-        val humanPlayer1 = SimpleBooleanProperty(true)
-        val humanPlayer2 = SimpleBooleanProperty(false)
-        val regularGame = SimpleBooleanProperty(true)
-        val rowsValue = SimpleIntegerProperty(SetupPanel.ROWS_DEFAULT)
-        val columnsValue = SimpleIntegerProperty(SetupPanel.COLS_DEFAULT)
-        val linesValue = SimpleIntegerProperty(SetupPanel.LINE_LENGTH_DEFAULT)
+        this.primaryStage = primaryStage  // Store reference to primaryStage
 
-        // Create the initial panel (SetupPanel in this case)
-        val setupPanel = SetupPanel(humanPlayer1, humanPlayer2, regularGame, rowsValue, columnsValue, linesValue, this)
-
-        // Main container to hold the panel
-        mainContainer = StackPane(setupPanel)
+        // Initialize the main container
+        mainContainer = StackPane()
         mainContainer.padding = Insets(20.0)
 
         // Set up the stage
-        primaryStage.title = "Connect Four Setup"
-        primaryStage.scene = Scene(mainContainer, 400.0, 400.0)
+        primaryStage.title = "Connect Four"
+        primaryStage.scene = Scene(mainContainer)
         primaryStage.show()
+
+        // Display the SetupPanel initially
+        showSetupPanel()
     }
 
+    // Method to display the SetupPanel
+    private fun showSetupPanel() {
+        val setupPanel = SetupPanel(
+            humanPlayer1, humanPlayer2, regularGame,
+            rowsValue, columnsValue, linesValue, this
+        )
+        mainContainer.children.setAll(setupPanel)
 
-    fun play(humanPlayer1: SimpleBooleanProperty,
-             humanPlayer2: SimpleBooleanProperty,
-             regularGame: SimpleBooleanProperty,
-             rowsValue: SimpleIntegerProperty,
-             columnsValue: SimpleIntegerProperty,
-             linesValue: SimpleIntegerProperty) {
-        println("""Playing: h1=${humanPlayer1.get()}, h2=${humanPlayer2.get()}, regularGame=${regularGame.get()}, 
-            rowsValue=${rowsValue.get()}, columnsValue=${columnsValue.get()}, linesValue=${linesValue.get()}""")
-//        val gamePanel = org.vorpal.connect.controller.GamePanel(rowsValue, columnsValue, linesValue)
-//        mainContainer.children.clear()
-//        mainContainer.children.add(gamePanel)
+        // Resize the stage to fit the SetupPanel
+        primaryStage.sizeToScene()
     }
 
+    // Method to handle the transition to the GamePanel
+    fun showPlayPanel() {
+        println(
+            """Playing: h1=${humanPlayer1.value}, h2=${humanPlayer2.value}, regularGame=${regularGame.value}, 
+            rowsValue=${rowsValue.value}, columnsValue=${columnsValue.value}, linesValue=${linesValue.value}"""
+        )
+        // Initialize GamePanel (assuming you have a GamePanel class)
+        val gamePanel = GamePanel(rowsValue, columnsValue, linesValue)
+        mainContainer.children.setAll(gamePanel)
+
+        // Resize the stage to fit the GamePanel
+        primaryStage.sizeToScene()
+    }
+
+    // Method to quit the application
     fun quit() {
-        (mainContainer.scene.window as? Stage)?.close()
+        primaryStage.close()
     }
 }
 

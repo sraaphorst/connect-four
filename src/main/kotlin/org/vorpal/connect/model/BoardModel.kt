@@ -3,16 +3,6 @@ package org.vorpal.connect.model
 import org.vorpal.connect.general.*
 
 
-enum class Player {
-    PLAYER1,
-    PLAYER2;
-
-    fun toggle(): Player = when (this) {
-        PLAYER1 -> PLAYER2
-        PLAYER2 -> PLAYER1
-    }
-}
-
 // Row by column.
 typealias Position = Pair<Int, Int>
 
