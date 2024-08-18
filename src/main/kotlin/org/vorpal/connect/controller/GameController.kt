@@ -12,8 +12,9 @@ class GameController(
     private val view: GameView) {
 
     init {
+        // Set up the controller to listen to the chip sliding arrows.
         view.setCanvasClickListener { event -> handleCanvasClickEvent(event) }
-        view.setStatusBarText("Ready")
+        statusTurn()
     }
 
     // Display player's turn.
@@ -36,6 +37,7 @@ class GameController(
     }
 
 
+    // The canvas was clicked: determine if a chip is inserted and there is a winner.
     fun handleCanvasClickEvent(event: MouseEvent) {
         val (row, column) = view.mousePosToBoardPosition(event)
 
@@ -43,14 +45,25 @@ class GameController(
         // columns that are not yet full. Ignore other events.
         if (row == -1 && column in model.getUnfilledColumns()) {
             // Add a chip to the column, check if there is a line, and if so, report the result.
-            val player = model.turn
-            val newBoard = model.playChip(column)
+            model.playChip(column)
 
+            // Check if this introduces a line.
+            val line = model.findLine()
+            if (line != null)
+                TODO()
+            else
+                nextRound()
         } else
             print("Click at (${event.x}, ${event.y}) -> row $row col $column ignored.")
 
         model.playChip(col)
         view.update(model)
+    }
+
+    fun nextRound() {
+        // If the board is full, there is a tie.
+        if (model.isFull())
+
     }
 
     companion object {

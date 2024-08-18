@@ -11,17 +11,45 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import org.vorpal.connect.Main
+import org.vorpal.connect.model.GameType
 
-class SetupPanel(
-    private val humanPlayer1: SimpleBooleanProperty,
-    private val humanPlayer2: SimpleBooleanProperty,
-    private val regularGame: SimpleBooleanProperty,
-    private val rowsValue: SimpleIntegerProperty,
-    private val columnsValue: SimpleIntegerProperty,
-    private val linesValue: SimpleIntegerProperty,
-    private val mainApp: Main
-) : GridPane() {
+// We either play or quit.
+sealed class SetupResult
+
+data class Play(val rows: Int,
+                val columns: Int,
+                val lineLength: Int,
+                val isPlayer1Human: Boolean,
+                val isPlayer2Human: Boolean,
+                val gameType: GameType): SetupResult()
+
+data object Quit: SetupResult()
+
+object SetupPanel: GridPane() {
+    private lateinit var onSetupComplete: (SetupResult) -> Unit
+    fun initialize(onSetupComplete: (SetupResult) -> Unit) {
+        this.onSetupComplete = onSetupComplete
+    }
+
+    // Default const values
+    private const val MinRows = 4
+    private const val DefaultRows = 6
+    private const val MaxRows = 10
+
+    private const val MinColumns = 4
+    private const val DefaultColumns = 7
+    private const val MaxColumns = 10
+
+    private const val MinLineLength = 3
+    private const val DefaultLineLength = 4
+
+    // Properties of the setup panel
+    private var humanPlayer1 = SimpleBooleanProperty(true)
+    private var humanPlayer2 = SimpleBooleanProperty(false)
+    private var regularGame = SimpleBooleanProperty(true)
+    private var rowsValue = SimpleIntegerProperty(DefaultRows)
+    private var columnsValue = SimpleIntegerProperty(DefaultColumns)
+    private var lineLengthValue = SimpleIntegerProperty(DefaultLineLength)
 
     init {
         prefWidth = 400.0
@@ -85,7 +113,7 @@ class SetupPanel(
 
         // Rows Slider
         val rowsLabel = Label("Rows:")
-        val rowsSlider = Slider(ROWS_MIN.toDouble(), ROWS_MAX.toDouble(), ROWS_DEFAULT.toDouble())
+        val rowsSlider = Slider(MinRows.toDouble(), MaxRows.toDouble(), DefaultRows.toDouble())
         rowsSlider.majorTickUnit = 1.0
         rowsSlider.minorTickCount = 0
         rowsSlider.isSnapToTicks = true
@@ -103,7 +131,7 @@ class SetupPanel(
 
         // Columns Slider
         val columnsLabel = Label("Columns:")
-        val columnsSlider = Slider(COLS_MIN.toDouble(), COLS_MAX.toDouble(), COLS_DEFAULT.toDouble())
+        val columnsSlider = Slider(MinColumns.toDouble(), MaxColumns.toDouble(), DefaultColumns.toDouble())
         columnsSlider.majorTickUnit = 1.0
         columnsSlider.minorTickCount = 0
         columnsSlider.isSnapToTicks = true
@@ -121,15 +149,19 @@ class SetupPanel(
 
         // Line Slider
         val lineLabel = Label("Line Length:")
-        val lineSlider = Slider(LINE_LENGTH_MIN.toDouble(), COLS_DEFAULT.coerceAtLeast(ROWS_DEFAULT).toDouble(), LINE_LENGTH_DEFAULT.toDouble())
+        val lineSlider = Slider(
+            MinLineLength.toDouble(),
+            DefaultColumns.coerceAtLeast(DefaultRows).toDouble(),
+            DefaultLineLength.toDouble()
+        )
         lineSlider.majorTickUnit = 1.0
         lineSlider.minorTickCount = 0
         lineSlider.isSnapToTicks = true
         lineSlider.isShowTickMarks = true
         lineSlider.isShowTickLabels = true
-        linesValue.bind(lineSlider.valueProperty().asObject().map(Double::toInt))
+        lineLengthValue.bind(lineSlider.valueProperty().asObject().map(Double::toInt))
         val linesTextField = TextField()
-        linesTextField.textProperty().bind(linesValue.asString())
+        linesTextField.textProperty().bind(lineLengthValue.asString())
         linesTextField.isEditable = false
         linesTextField.prefWidth = 30.0  // Set a fixed width for two digits
         linesTextField.maxWidth = 30.0
@@ -152,31 +184,26 @@ class SetupPanel(
         val playButton = Button("_Play")
         playButton.isMnemonicParsing = true
         playButton.setOnAction {
-            mainApp.play(humanPlayer1, humanPlayer2, regularGame, rowsValue, columnsValue, linesValue)
+            val setupResult = Play(
+                rows = rowsValue.get(),
+                columns = columnsValue.get(),
+                lineLength = lineLengthValue.get(),
+                isPlayer1Human = player1HumanRadio.isSelected,
+                isPlayer2Human = player2HumanRadio.isSelected,
+                gameType = if (gameplayRegularRadio.isSelected) GameType.REGULAR else GameType.MISERE
+            )
+            onSetupComplete(setupResult)
         }
 
         val quitButton = Button("_Quit")
         quitButton.isMnemonicParsing = true
         quitButton.setOnAction {
-            mainApp.quit()
+            onSetupComplete(Quit)
         }
 
         val buttonBox = HBox(10.0, playButton, quitButton)
         buttonBox.alignment = Pos.CENTER_RIGHT
         add(buttonBox, 0, 7, 3, 1)
         setVgrow(buttonBox, Priority.ALWAYS)
-    }
-
-    companion object {
-        const val ROWS_MIN = 4
-        const val ROWS_DEFAULT = 6
-        const val ROWS_MAX = 10
-
-        const val COLS_MIN = 4
-        const val COLS_DEFAULT = 7
-        const val COLS_MAX = 10
-
-        const val LINE_LENGTH_MIN = 3
-        const val LINE_LENGTH_DEFAULT = 4
     }
 }

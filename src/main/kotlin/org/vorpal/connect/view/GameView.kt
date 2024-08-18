@@ -13,10 +13,10 @@ import javafx.scene.paint.Color
 import org.vorpal.connect.model.GameModel
 import org.vorpal.connect.model.Position
 
-class GameView(private val rows: SimpleIntegerProperty,
-               private val columns: SimpleIntegerProperty) : Pane() {
+class GameView(private val rows: Int,
+               private val columns: Int) : Pane() {
 
-    private val canvas = Canvas(columns.value * CellSize, (rows.value + 1) * CellSize)
+    private val canvas = Canvas(columns * CellSize, (rows + 1) * CellSize)
     private val gc = canvas.graphicsContext2D
     private val statusBar = Label()
 
@@ -56,8 +56,8 @@ class GameView(private val rows: SimpleIntegerProperty,
 
         // Draw the chip, or the empty chip.
         gc.fill = BoardColor
-        (0 until rows.value).forEach { row ->
-            (0 until columns.value).forEach { column ->
+        (0 until rows).forEach { row ->
+            (0 until columns).forEach { column ->
                 gc.fillRect(column * CellSize, (row + 1) * CellSize, CellSize, CellSize)
 
                 // Pick the chip color.
