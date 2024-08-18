@@ -46,20 +46,21 @@ class GameModel(play: Play) {
 
     // Gravity pulls the chips downward: thus, for a given column, we want the index of the last
     // empty row if one exists, and null otherwise.
-    private fun findLastEmptyRowForColumn(col: Int): Int? =
+    fun findLastEmptyRowForColumn(col: Int): Int? =
         board.indexOfLast { row -> row[col] == null  }.takeIf { it != -1 }
 
     // TODO: This method is probably going to be needed for minimax to create boards that don't
     // TODO: actually mutate the data model.
     // Given a column, insert a chip, and have it descend to the last empty row if there is one since
     // gravity will pull the chip down. If there is no such empty row, an exception is raised.
-    fun insertChip(player: Player, col: Int) {
-        if (col !in getUnfilledColumns())
-            throw IllegalArgumentException("Tried to place chip in full column $col.")
+    fun insertChip(player: Player, column: Int) {
+        if (column !in getUnfilledColumns())
+            throw IllegalArgumentException("Tried to place chip in full column $column.")
         else {
-            val emptyRow = findLastEmptyRowForColumn(col)
-                ?: throw IllegalStateException("Could not find empty row for column $col")
-            board[col][emptyRow] = player
+            val emptyRow = findLastEmptyRowForColumn(column)
+                ?: throw IllegalStateException("Could not find empty row for column $column")
+            board[emptyRow][column] = player
+            println(board)
         }
     }
 
