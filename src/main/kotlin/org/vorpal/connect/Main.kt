@@ -10,7 +10,6 @@ import org.vorpal.connect.model.GameModel
 import org.vorpal.connect.view.GameView
 
 class Main : Application() {
-//    private lateinit var mainContainer: StackPane
     private lateinit var primaryStage: Stage
 
     override fun start(primaryStage: Stage) {
@@ -20,17 +19,18 @@ class Main : Application() {
     }
 
     private fun showSetupPanel() {
-        SetupPanel.initialize { setupResult ->
+        // Create a new instance of SetupPanel each time.
+        val setupPanel = SetupPanel.initialize { setupResult ->
             handleSetupResult(setupResult)
         }
 
-        val scene = Scene(SetupPanel)
+        val scene = Scene(setupPanel)
         primaryStage.scene = scene
         primaryStage.sizeToScene()
         primaryStage.show()
     }
 
-    private fun handleSetupResult(setupResult: SetupResult) = when(setupResult) {
+    private fun handleSetupResult(setupResult: SetupResult) = when (setupResult) {
         is Play -> startGame(setupResult)
         is Quit -> primaryStage.close()
     }
