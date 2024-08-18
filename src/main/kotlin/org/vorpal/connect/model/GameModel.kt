@@ -119,12 +119,11 @@ class GameModel(play: Play) {
         }
     }
 
-    // Find a winning diagonal if there is one.
     private fun findDiagonal(board: ImmutableBoard, lineLength: Int): Line? =
-        getDiagonals(board, lineLength).map { diagonal ->
-            val (playerX, playerY) = diagonal.first()
-            board[playerX][playerY]
-                ?.takeIf { diagonal.all { (x, y) -> board[x][y] == it } }
+        getDiagonals(board, lineLength).firstNotNullOfOrNull { diagonal ->
+            val (x, y) = diagonal.first()
+            val player = board[x][y]
+            player?.takeIf { diagonal.all { (dx, dy) -> board[dx][dy] == it } }
                 ?.let { Line(it, diagonal) }
-        }.firstOrNull()
+        }
 }
