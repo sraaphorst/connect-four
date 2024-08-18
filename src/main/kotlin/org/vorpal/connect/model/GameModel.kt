@@ -12,19 +12,20 @@ typealias Board = List<List<Player?>>
 data class Line(val player: Player, val positions: List<Position>)
 
 
-data class BoardModel(val turn: Player,
-                      val board: Board,
-                      val width: Int,
-                      val height: Int,
-                      val lineLength: Int) {
+data class GameModel(val turn: Player,
+                     val board: Board,
+                     val columns: Int,
+                     val rows: Int,
+                     val normalGame: Boolean,
+                     val lineLength: Int) {
     init {
         // Conditions:
         // 1. The board must be able to accommodate a line of the specified length.
         // 2. The board must have height rows.
         // 3. Each row must have width columns.
-        require(lineLength <= Math.max(width, height))
-        require(board.size == height)
-        require(board.all{ it.size == width })
+        require(lineLength <= Math.max(columns, rows))
+        require(board.size == rows)
+        require(board.all{ it.size == columns })
     }
 
     // Determine if the board is empty, is not empty, is full, or is not full.
@@ -56,8 +57,8 @@ data class BoardModel(val turn: Player,
         }
 
     // Performs the state transition of the current player inserting a chip into a column.
-    fun playChip(col: Int): BoardModel =
-        BoardModel(turn.toggle(), insertChip(turn, col), width, height, lineLength)
+    fun playChip(col: Int): GameModel =
+        GameModel(turn.toggle(), insertChip(turn, col), columns, rows, normalGame, lineLength)
 
     // If there is a Line in the board, return it: else, null.
     fun findLine(): Line? =
@@ -65,6 +66,10 @@ data class BoardModel(val turn: Player,
             .firstNotNullOfOrNull { it(board, lineLength) }
 
     companion object {
+        // Create an empty board of the desired number of rows and columns.
+        fun emptyBoard(columns: Int, rows: Int): Board =
+            List(rows) { List(columns) { null } }
+
         // Find a winning row in the given board. This is in the companion object because we want
         // to be able to also do the transpose for columns.
         private fun findRow(board: Board, lineLength: Int): Line? =
@@ -75,19 +80,6 @@ data class BoardModel(val turn: Player,
                         ?.let { player -> Line(player, (0 until lineLength).map { Position(rowIdx, windowIdx + it) }) }
                 }
             }
-
-        // Should be the same as the above function.
-//        private fun findRow(board: Board, lineLength: Int): Line? {
-//            board.forEachIndexed { rowIdx, row ->
-//                row.windowed(lineLength).forEachIndexed { windowIdx, window ->
-//                    val player = window.firstOrNull()
-//                    if (player != null && window.all { it == player }) {
-//                        return Line(player, (0 until lineLength).map { Position(rowIdx, windowIdx + it) })
-//                    }
-//                }
-//            }
-//            return null
-//        }
 
         // For a winning column, take the transpose, find a row, and then swap it back to a column.
         private fun findColumn(board: Board, lineLength: Int): Line? =

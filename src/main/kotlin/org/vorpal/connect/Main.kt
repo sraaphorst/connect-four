@@ -9,7 +9,11 @@ import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
+import org.vorpal.connect.controller.GameController
 import org.vorpal.connect.controller.SetupPanel
+import org.vorpal.connect.model.GameModel
+import org.vorpal.connect.model.Player
+import org.vorpal.connect.view.GameView
 
 class Main : Application() {
 
@@ -36,12 +40,12 @@ class Main : Application() {
         primaryStage.scene = Scene(mainContainer)
         primaryStage.show()
 
-        // Display the SetupPanel initially
-        showSetupPanel()
+        // Display the SetupPanel initially.
+        setup()
     }
 
-    // Method to display the SetupPanel
-    private fun showSetupPanel() {
+    // Method to display the SetupPanel.
+    fun setup() {
         val setupPanel = SetupPanel(
             humanPlayer1, humanPlayer2, regularGame,
             rowsValue, columnsValue, linesValue, this
@@ -52,15 +56,17 @@ class Main : Application() {
         primaryStage.sizeToScene()
     }
 
-    // Method to handle the transition to the GamePanel
-    fun showPlayPanel() {
+    // Method to handle the transition to gameplay.
+    fun play() {
         println(
             """Playing: h1=${humanPlayer1.value}, h2=${humanPlayer2.value}, regularGame=${regularGame.value}, 
             rowsValue=${rowsValue.value}, columnsValue=${columnsValue.value}, linesValue=${linesValue.value}"""
         )
-        // Initialize GamePanel (assuming you have a GamePanel class)
-        val gamePanel = GamePanel(rowsValue, columnsValue, linesValue)
-        mainContainer.children.setAll(gamePanel)
+        // Initialize GameView (assuming you have a GameView class)
+        val gameView = GameView(rowsValue, columnsValue)
+        val gameModel = GameModel(Player.PLAYER1, GameModel.emptyBoard(columnsValue.value, rowsValue.value), columnsValue.value, rowsValue.value, regularGame.value, linesValue.value)
+        val gameController = GameController(gameModel, gameView)
+        mainContainer.children.setAll(gameView)
 
         // Resize the stage to fit the GamePanel
         primaryStage.sizeToScene()

@@ -167,13 +167,6 @@ class SetupPanel(
         setVgrow(buttonBox, Priority.ALWAYS)
     }
 
-    private fun enforceToggleGroupSelection(toggleGroup: ToggleGroup, defaultToggle: ToggleButton) {
-        toggleGroup.selectedToggleProperty().addListener { _, oldValue, newValue ->
-            if (newValue == null)
-                toggleGroup.selectToggle(oldValue ?: newValue)
-        }
-    }
-
     companion object {
         const val ROWS_MIN = 4
         const val ROWS_DEFAULT = 6

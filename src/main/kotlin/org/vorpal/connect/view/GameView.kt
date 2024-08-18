@@ -3,35 +3,44 @@
 package org.vorpal.connect.view
 
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
+import javafx.scene.control.Label
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
+import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import org.vorpal.connect.controller.GameController
-import org.vorpal.connect.model.BoardModel
+import org.vorpal.connect.model.GameModel
+import org.vorpal.connect.model.Position
 
 class GameView(private val rows: SimpleIntegerProperty,
-               private val columns: SimpleIntegerProperty,
-               private val controller: GameController) : Pane() {
+               private val columns: SimpleIntegerProperty) : Pane() {
 
     private val canvas = Canvas(columns.value * CellSize, (rows.value + 1) * CellSize)
     private val gc = canvas.graphicsContext2D
+    private val statusBar = Label()
 
     init {
-        children.add(canvas)
-        drawBoard()
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED) { handleMouseClick(it) }
+        statusBar.alignment = Pos.CENTER_LEFT
+        val canvasPane = StackPane(canvas)
+        children.addAll(canvasPane, statusBar)
     }
 
     // TODO: This could be optimized.
     // TODO: The only thing this method might need to do is:
     // TODO: 1. Erase arrows if a column ends up full; or
     // TODO: 2. Draw a single chip that has been added to the board.
-    fun update(model: BoardModel) {
+    fun update(model: GameModel) {
         drawBoard(model)
     }
 
-    private fun drawBoard(model: BoardModel? = null) {
+    // Call when the game is over to erase the arrows from the screen if the game is over.
+    private fun eraseArrows() {
+        gc.fill = Color.BLACK
+        gc.fillRect(0.0, 0.0, canvas.width, CellSize)
+    }
+
+    private fun drawBoard(model: GameModel? = null) {
         gc.clearRect(0.0, 0.0, canvas.width, canvas.height)
 
         // Draw the arrows used to indicate chips can be dropped.
@@ -63,22 +72,43 @@ class GameView(private val rows: SimpleIntegerProperty,
         }
     }
 
-    // Translate mouse clicks into chip drops into columns.
-    private fun handleMouseClick(evt: MouseEvent) {
-        val row = (evt.y / CellSize).toInt()
-        val column = (evt.x / CellSize).toInt()
-
-        // DEBUGGING
-        System.out.println("Click in col=$column, row=$row.")
-
-        // We only care about clicks in row 0, since that is where the arrows are.
-        // The controller will determine if the column is full.
-        if (row == 0 && column in 0 until columns.value)
-            controller.handleColumnClick(column)
+    // The controller will register for events from this canvas,
+    // maintaining the purity of the controller being the owner
+    // of the model and the view.
+    fun setCanvasClickListener(listener: (MouseEvent) -> Unit) {
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, listener)
     }
 
+    // If the game is over, the controller should no longer respond to events from
+    // the canvas.
+    fun removeCanvasClickListener(listener: (MouseEvent) -> Unit) {
+        canvas.removeEventHandler(MouseEvent.MOUSE_CLICKED, listener)
+    }
+
+    // Enable clicking on the status bar: this is to reset the game when it is over.
+    fun setStatusBarClickListener(listener: (MouseEvent) -> Unit) {
+        statusBar.addEventHandler(MouseEvent.MOUSE_CLICKED, listener)
+    }
+
+    // Remove clicking on the status bar.
+    // This should not be needed but we include it for completeness.
+    fun removeStatusBarClickListener(listener: (MouseEvent) -> Unit) {
+        statusBar.removeEventHandler(MouseEvent.MOUSE_CLICKED, listener)
+    }
+
+    fun setStatusBarText(text: String) {
+        statusBar.text = text
+    }
+
+    // Translate a mouse (x, y) position to a (row, column) position on the board.
+    // Note that the arrow row at the top is considered to be row -1 since
+    // it does not contribute to the actual game model.
+    fun mousePosToBoardPosition(event: MouseEvent): Position =
+        Position((event.x / CellSize).toInt() - 1, (event.y / CellSize).toInt())
+
+
     companion object {
-        private const val CellSize = 100.0
+        const val CellSize = 100.0
         private const val ArrowSize = 80.0
         private const val HalfArrowSize = ArrowSize / 2
         private const val ChipDiameter = 80.0
