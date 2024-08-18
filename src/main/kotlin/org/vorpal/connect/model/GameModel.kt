@@ -100,14 +100,17 @@ class GameModel(play: Play) {
             val rows = board.size
             val cols = board.first().size
 
+            // The right slants are: \
             val rightSlant = (0..(rows - lineLength)).flatMap { row ->
                 (0..(cols - lineLength)).map { col ->
                     (0 until lineLength).map { row + it to col + it }
                 }
             }
 
-            val leftSlant = (0..(rows - lineLength)).flatMap { row ->
-                ((lineLength - 1) until cols).map { col ->
+            // The left slants are: /
+            // Start at the top right column and go SW.
+            val leftSlant = (0 .. (rows - lineLength)).flatMap { row ->
+                ((cols - 1) downTo (lineLength - 1)).map { col ->
                     (0 until lineLength).map { row + it to col - it }
                 }
             }
